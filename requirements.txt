@@ -1,0 +1,2 @@
+# No runtime dependencies are required for the repository validation tests.
+# Airflow itself is supplied by the Docker image in docker-compose.yaml.

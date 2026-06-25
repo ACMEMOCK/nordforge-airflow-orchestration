@@ -1,0 +1,982 @@
+{
+  "contract_version": "2026.06.24",
+  "company": "NordForge Industrial Group",
+  "environment": "local_airflow_starter",
+  "description": "Dataset contracts for generated NordForge ERP, logistics, freight, inventory, customer service, and ATP packages.",
+  "airflow_dag_id": "nordforge_erp_daily_orchestration",
+  "required_packages": 7,
+  "packages": [
+    {
+      "package_id": "accu1932_order_fulfillment",
+      "artifact_prefix": "ACCU1932",
+      "domain": "order_fulfillment",
+      "pipeline_group": "order_to_cash",
+      "criticality": "essential",
+      "owner_team": "Customer Service Operations",
+      "source_system": "SAP SD / ATP",
+      "business_purpose": "Daily sales order fulfillment, ATP, delivery, backlog, and credit-block orchestration.",
+      "local_export_folder": "accu1932_order_fulfillment",
+      "expected_zip_file": "ACCU1932_nordforge_order_fulfillment_csv_exports.zip",
+      "expected_workbook_file": "ACCU1932_nordforge_order_fulfillment_erp_environment_adjusted.xlsx",
+      "detail_rows_preserved": 10978,
+      "snapshot_date": "",
+      "primary_key_hint": [
+        "SALES_ORDER_ID",
+        "SALES_ORDER_ITEM"
+      ],
+      "tables": [
+        {
+          "sheet_name": "Customer_Order_Fulfillment",
+          "csv_file": "nordforge_order_fulfillment.csv",
+          "row_count": 10978,
+          "include_in_csv": true,
+          "purpose": "Main SAP SD-style order fulfillment extract; preserves source row count"
+        },
+        {
+          "sheet_name": "Customer_Master_KNA1",
+          "csv_file": "nordforge_customer_master.csv",
+          "row_count": 12,
+          "include_in_csv": true,
+          "purpose": "Customer master and sales-area attributes derived from customer dimension"
+        },
+        {
+          "sheet_name": "Material_Master_MARA_MARC",
+          "csv_file": "nordforge_material_master.csv",
+          "row_count": 23,
+          "include_in_csv": true,
+          "purpose": "Material and plant planning attributes for source SKUs"
+        },
+        {
+          "sheet_name": "Plant_Master_T001W",
+          "csv_file": "nordforge_plant_master.csv",
+          "row_count": 3,
+          "include_in_csv": true,
+          "purpose": "Plant master geography and calendars"
+        },
+        {
+          "sheet_name": "Shipping_Points_TVST",
+          "csv_file": "nordforge_shipping_points.csv",
+          "row_count": 6,
+          "include_in_csv": true,
+          "purpose": "Shipping point capacity and cutoff master data"
+        },
+        {
+          "sheet_name": "Sales_Org_Master_TVKOT",
+          "csv_file": "nordforge_sales_orgs.csv",
+          "row_count": 3,
+          "include_in_csv": true,
+          "purpose": "Sales organization master data"
+        },
+        {
+          "sheet_name": "Schedule_Lines_VBEP",
+          "csv_file": "nordforge_schedule_lines.csv",
+          "row_count": 10978,
+          "include_in_csv": true,
+          "purpose": "Schedule-line confirmations for every source order line"
+        },
+        {
+          "sheet_name": "Delivery_Items_LIPS",
+          "csv_file": "nordforge_delivery_items.csv",
+          "row_count": 4392,
+          "include_in_csv": true,
+          "purpose": "Delivery item records for shipped and partially shipped lines"
+        },
+        {
+          "sheet_name": "ATP_Checks",
+          "csv_file": "nordforge_atp_checks.csv",
+          "row_count": 10978,
+          "include_in_csv": true,
+          "purpose": "Availability-to-promise check result for every order line"
+        },
+        {
+          "sheet_name": "Backlog_Snapshot",
+          "csv_file": "nordforge_backlog_snapshot.csv",
+          "row_count": 4025,
+          "include_in_csv": true,
+          "purpose": "Open active backlog snapshot as of 2026-06-17"
+        },
+        {
+          "sheet_name": "Production_Allocation_Link",
+          "csv_file": "nordforge_production_allocation.csv",
+          "row_count": 79,
+          "include_in_csv": true,
+          "purpose": "Weekly plant/material allocation links for constrained supply analysis"
+        },
+        {
+          "sheet_name": "Credit_Blocks_VBAK",
+          "csv_file": "nordforge_credit_blocks.csv",
+          "row_count": 2049,
+          "include_in_csv": true,
+          "purpose": "Credit hold and release records for affected order lines"
+        },
+        {
+          "sheet_name": "Service_Level_Policy",
+          "csv_file": "nordforge_service_policy.csv",
+          "row_count": 32,
+          "include_in_csv": true,
+          "purpose": "Service policy thresholds by customer group and product family"
+        },
+        {
+          "sheet_name": "Cross_Dataset_Link_Map",
+          "csv_file": "nordforge_dataset_links.csv",
+          "row_count": 12,
+          "include_in_csv": true,
+          "purpose": "Cross-dataset join map and analytic purpose"
+        },
+        {
+          "sheet_name": "CSV_Reference",
+          "csv_file": "nordforge_csv_reference.csv",
+          "row_count": 14,
+          "include_in_csv": true,
+          "purpose": "Reference mapping from workbook tabs to CSV files"
+        }
+      ]
+    },
+    {
+      "package_id": "accu7392_customer_service",
+      "artifact_prefix": "ACCU7392",
+      "domain": "customer_service_accounts",
+      "pipeline_group": "customer_success",
+      "criticality": "essential",
+      "owner_team": "Customer Service Operations",
+      "source_system": "SAP CRM / Service Cloud",
+      "business_purpose": "Customer account health, SLA policy, service queues, cases, entitlements, and escalation actions.",
+      "local_export_folder": "accu7392_customer_service",
+      "expected_zip_file": "ACCU7392_nordforge_customer_service_csv_exports.zip",
+      "expected_workbook_file": "ACCU7392_nordforge_customer_service_erp_environment_adjusted.xlsx",
+      "detail_rows_preserved": 982,
+      "snapshot_date": "2026-06-19",
+      "primary_key_hint": [
+        "CUSTOMER_ID",
+        "ACCOUNT_RECORD_ID"
+      ],
+      "tables": [
+        {
+          "sheet_name": "Customer_Service_Accounts",
+          "csv_file": "nordforge_customer_service_accounts.csv",
+          "row_count": 982,
+          "include_in_csv": true,
+          "purpose": "Main customer-service account extract; preserves source row count"
+        },
+        {
+          "sheet_name": "Customer_Master_KNA1",
+          "csv_file": "nordforge_customer_master.csv",
+          "row_count": 602,
+          "include_in_csv": true,
+          "purpose": "SAP-style unique customer master derived from source customer IDs"
+        },
+        {
+          "sheet_name": "Parent_Account_Hierarchy",
+          "csv_file": "nordforge_parent_accounts.csv",
+          "row_count": 602,
+          "include_in_csv": true,
+          "purpose": "Parent account rollup and hierarchy attributes"
+        },
+        {
+          "sheet_name": "Industry_Segments",
+          "csv_file": "nordforge_industry_segments.csv",
+          "row_count": 8,
+          "include_in_csv": true,
+          "purpose": "Industry segment service benchmarks"
+        },
+        {
+          "sheet_name": "Region_Master",
+          "csv_file": "nordforge_region_master.csv",
+          "row_count": 5,
+          "include_in_csv": true,
+          "purpose": "Regional service ownership and coverage master"
+        },
+        {
+          "sheet_name": "Sales_Rep_Master",
+          "csv_file": "nordforge_sales_reps.csv",
+          "row_count": 29,
+          "include_in_csv": true,
+          "purpose": "Sales representative account ownership master"
+        },
+        {
+          "sheet_name": "Service_Queues",
+          "csv_file": "nordforge_service_queues.csv",
+          "row_count": 23,
+          "include_in_csv": true,
+          "purpose": "Customer-service queue capacity and ownership master"
+        },
+        {
+          "sheet_name": "Payment_Terms_T052",
+          "csv_file": "nordforge_payment_terms.csv",
+          "row_count": 5,
+          "include_in_csv": true,
+          "purpose": "SAP-style payment terms and credit review attributes"
+        },
+        {
+          "sheet_name": "SLA_Policy",
+          "csv_file": "nordforge_sla_policy.csv",
+          "row_count": 32,
+          "include_in_csv": true,
+          "purpose": "Service-level policy by account tier and industry"
+        },
+        {
+          "sheet_name": "Account_Health_Scores",
+          "csv_file": "nordforge_account_health.csv",
+          "row_count": 602,
+          "include_in_csv": true,
+          "purpose": "Derived customer health, churn risk, and next review metrics"
+        },
+        {
+          "sheet_name": "Service_Case_History",
+          "csv_file": "nordforge_service_case_history.csv",
+          "row_count": 1350,
+          "include_in_csv": true,
+          "purpose": "Generated CRM case history tied to customers and service queues"
+        },
+        {
+          "sheet_name": "Order_Activity_Snapshot",
+          "csv_file": "nordforge_order_activity_snapshot.csv",
+          "row_count": 982,
+          "include_in_csv": true,
+          "purpose": "Order recency and revenue activity snapshot for each source row"
+        },
+        {
+          "sheet_name": "Contract_Entitlements",
+          "csv_file": "nordforge_contract_entitlements.csv",
+          "row_count": 602,
+          "include_in_csv": true,
+          "purpose": "Customer service contract and support entitlement records"
+        },
+        {
+          "sheet_name": "Escalation_Actions",
+          "csv_file": "nordforge_escalation_actions.csv",
+          "row_count": 313,
+          "include_in_csv": true,
+          "purpose": "Action plan records for at-risk customer accounts"
+        },
+        {
+          "sheet_name": "Cross_Dataset_Link_Map",
+          "csv_file": "nordforge_dataset_links.csv",
+          "row_count": 13,
+          "include_in_csv": true,
+          "purpose": "Cross-dataset join map and analytic purpose"
+        },
+        {
+          "sheet_name": "CSV_Reference",
+          "csv_file": "nordforge_csv_reference.csv",
+          "row_count": 15,
+          "include_in_csv": true,
+          "purpose": "Reference mapping from workbook tabs to CSV files"
+        }
+      ]
+    },
+    {
+      "package_id": "acsa2026_contract_customer",
+      "artifact_prefix": "ACSA2026",
+      "domain": "sales_contract_pricing",
+      "pipeline_group": "commercial_controls",
+      "criticality": "essential",
+      "owner_team": "Sales Operations",
+      "source_system": "SAP SD Pricing / Contract Management",
+      "business_purpose": "EMEA contract pricing, condition records, rebates, renewal pipeline, and discount audit workflow.",
+      "local_export_folder": "acsa2026_contract_customer",
+      "expected_zip_file": "ACSA2026_nordforge_sales_operations_csv_exports.zip",
+      "expected_workbook_file": "ACSA2026_nordforge_sales_operations_erp_environment_adjusted.xlsx",
+      "detail_rows_preserved": 3985,
+      "snapshot_date": "2026-06-19",
+      "primary_key_hint": [
+        "CONTRACT_ID",
+        "MATERIAL_ID",
+        "CUSTOMER_GROUP_ID"
+      ],
+      "tables": [
+        {
+          "sheet_name": "Sales_Contract_Pricing",
+          "csv_file": "nordforge_sales_contract_pricing.csv",
+          "row_count": 3985,
+          "include_in_csv": true,
+          "purpose": "Main sales contract pricing extract; preserves source row count"
+        },
+        {
+          "sheet_name": "Customer_Partner_Functions",
+          "csv_file": "nordforge_customer_partner_functions.csv",
+          "row_count": 50,
+          "include_in_csv": true,
+          "purpose": "Ship-to and bill-to partner-function master"
+        },
+        {
+          "sheet_name": "Customer_Group_Master",
+          "csv_file": "nordforge_customer_group_master.csv",
+          "row_count": 24,
+          "include_in_csv": true,
+          "purpose": "Parent customer group rollup for EMEA contract pricing"
+        },
+        {
+          "sheet_name": "Material_Pricing_Master",
+          "csv_file": "nordforge_material_pricing_master.csv",
+          "row_count": 23,
+          "include_in_csv": true,
+          "purpose": "Material and SKU-group pricing attributes"
+        },
+        {
+          "sheet_name": "Sales_Org_Master",
+          "csv_file": "nordforge_sales_org_master.csv",
+          "row_count": 4,
+          "include_in_csv": true,
+          "purpose": "EMEA sales organization master"
+        },
+        {
+          "sheet_name": "Distribution_Channel_Master",
+          "csv_file": "nordforge_distribution_channels.csv",
+          "row_count": 3,
+          "include_in_csv": true,
+          "purpose": "Pricing distribution channel master"
+        },
+        {
+          "sheet_name": "Pricing_Conditions_KONP",
+          "csv_file": "nordforge_pricing_conditions.csv",
+          "row_count": 3985,
+          "include_in_csv": true,
+          "purpose": "SAP-style pricing condition records derived from each source row"
+        },
+        {
+          "sheet_name": "Rebate_Agreements",
+          "csv_file": "nordforge_rebate_agreements.csv",
+          "row_count": 16,
+          "include_in_csv": true,
+          "purpose": "Rebate agreement and accrual exposure records"
+        },
+        {
+          "sheet_name": "Incoterms_Master",
+          "csv_file": "nordforge_incoterms.csv",
+          "row_count": 5,
+          "include_in_csv": true,
+          "purpose": "Incoterms freight and risk-transfer master"
+        },
+        {
+          "sheet_name": "Payment_Terms_T052",
+          "csv_file": "nordforge_payment_terms.csv",
+          "row_count": 7,
+          "include_in_csv": true,
+          "purpose": "SAP-style payment terms and credit review attributes"
+        },
+        {
+          "sheet_name": "Currency_FX_Rates",
+          "csv_file": "nordforge_currency_fx_rates.csv",
+          "row_count": 2,
+          "include_in_csv": true,
+          "purpose": "Currency conversion rates for reporting normalization"
+        },
+        {
+          "sheet_name": "Contract_Validity_Timeline",
+          "csv_file": "nordforge_contract_validity_timeline.csv",
+          "row_count": 420,
+          "include_in_csv": true,
+          "purpose": "Contract validity windows and renewal ownership"
+        },
+        {
+          "sheet_name": "Discount_Audit_Findings",
+          "csv_file": "nordforge_discount_audit_findings.csv",
+          "row_count": 2206,
+          "include_in_csv": true,
+          "purpose": "Pricing audit findings for high-risk contract rows"
+        },
+        {
+          "sheet_name": "Price_Waterfall",
+          "csv_file": "nordforge_price_waterfall.csv",
+          "row_count": 3985,
+          "include_in_csv": true,
+          "purpose": "List-to-net price waterfall for each source row"
+        },
+        {
+          "sheet_name": "Renewal_Pipeline",
+          "csv_file": "nordforge_renewal_pipeline.csv",
+          "row_count": 420,
+          "include_in_csv": true,
+          "purpose": "Contract renewal pipeline derived from validity windows"
+        },
+        {
+          "sheet_name": "Cross_Dataset_Link_Map",
+          "csv_file": "nordforge_dataset_links.csv",
+          "row_count": 14,
+          "include_in_csv": true,
+          "purpose": "Cross-dataset join map and analytic purpose"
+        },
+        {
+          "sheet_name": "CSV_Reference",
+          "csv_file": "nordforge_csv_reference.csv",
+          "row_count": 16,
+          "include_in_csv": true,
+          "purpose": "Reference mapping from workbook tabs to CSV files"
+        }
+      ]
+    },
+    {
+      "package_id": "acda7982_logistics_analytics",
+      "artifact_prefix": "ACDA7982",
+      "domain": "logistics_otif",
+      "pipeline_group": "logistics_performance",
+      "criticality": "essential",
+      "owner_team": "Logistics Analytics",
+      "source_system": "TMS / WMS / Delivery Events",
+      "business_purpose": "Delivery OTIF, carrier SLA, route lane performance, cut-off compliance, and recovery actions.",
+      "local_export_folder": "acda7982_logistics_analytics",
+      "expected_zip_file": "ACDA7982_nordforge_logistics_analytics_csv_exports.zip",
+      "expected_workbook_file": "ACDA7982_nordforge_logistics_analytics_erp_environment_adjusted.xlsx",
+      "detail_rows_preserved": 28946,
+      "snapshot_date": "2026-06-21",
+      "primary_key_hint": [
+        "DELIVERY_ID",
+        "SHIPMENT_ID"
+      ],
+      "tables": [
+        {
+          "sheet_name": "Delivery_Performance_Fact",
+          "csv_file": "nordforge_delivery_performance.csv",
+          "row_count": 28946,
+          "include_in_csv": true,
+          "purpose": "Main OTIF delivery performance extract; preserves source row count"
+        },
+        {
+          "sheet_name": "Distribution_Centers",
+          "csv_file": "nordforge_distribution_centers.csv",
+          "row_count": 3,
+          "include_in_csv": true,
+          "purpose": "Normalized DC master with source aliases"
+        },
+        {
+          "sheet_name": "Carrier_Master",
+          "csv_file": "nordforge_carrier_master.csv",
+          "row_count": 19,
+          "include_in_csv": true,
+          "purpose": "Carrier performance master"
+        },
+        {
+          "sheet_name": "Transport_Mode_Master",
+          "csv_file": "nordforge_transport_modes.csv",
+          "row_count": 3,
+          "include_in_csv": true,
+          "purpose": "Transport mode performance and SLA assumptions"
+        },
+        {
+          "sheet_name": "Service_Level_Master",
+          "csv_file": "nordforge_service_levels.csv",
+          "row_count": 9,
+          "include_in_csv": true,
+          "purpose": "Incoterms and service-level master"
+        },
+        {
+          "sheet_name": "Customer_Segment_Master",
+          "csv_file": "nordforge_customer_segments.csv",
+          "row_count": 22,
+          "include_in_csv": true,
+          "purpose": "Customer segment performance master"
+        },
+        {
+          "sheet_name": "Exception_Code_Catalog",
+          "csv_file": "nordforge_exception_catalog.csv",
+          "row_count": 30,
+          "include_in_csv": true,
+          "purpose": "Exception code catalog and severity mapping"
+        },
+        {
+          "sheet_name": "OTIF_Scorecard",
+          "csv_file": "nordforge_otif_scorecard.csv",
+          "row_count": 35,
+          "include_in_csv": true,
+          "purpose": "Monthly OTIF scorecard by DC, carrier, mode, and service level"
+        },
+        {
+          "sheet_name": "Cutoff_Compliance_Daily",
+          "csv_file": "nordforge_cutoff_compliance_daily.csv",
+          "row_count": 129,
+          "include_in_csv": true,
+          "purpose": "Daily warehouse cut-off compliance by DC"
+        },
+        {
+          "sheet_name": "Carrier_SLA_Targets",
+          "csv_file": "nordforge_carrier_sla_targets.csv",
+          "row_count": 23,
+          "include_in_csv": true,
+          "purpose": "Carrier SLA targets compared with actual OTIF"
+        },
+        {
+          "sheet_name": "Route_Lane_Performance",
+          "csv_file": "nordforge_route_lane_performance.csv",
+          "row_count": 269,
+          "include_in_csv": true,
+          "purpose": "Route lane performance by DC, customer segment, mode, and service level"
+        },
+        {
+          "sheet_name": "Delivery_Exception_Events",
+          "csv_file": "nordforge_delivery_exception_events.csv",
+          "row_count": 11578,
+          "include_in_csv": true,
+          "purpose": "Operational exception events tied to delivery rows"
+        },
+        {
+          "sheet_name": "Recovery_Actions",
+          "csv_file": "nordforge_recovery_actions.csv",
+          "row_count": 11578,
+          "include_in_csv": true,
+          "purpose": "Corrective action records for severe OTIF exceptions"
+        },
+        {
+          "sheet_name": "Data_Quality_Rules",
+          "csv_file": "nordforge_data_quality_rules.csv",
+          "row_count": 8,
+          "include_in_csv": true,
+          "purpose": "Data quality checks for analytics readiness"
+        },
+        {
+          "sheet_name": "Cross_Dataset_Link_Map",
+          "csv_file": "nordforge_dataset_links.csv",
+          "row_count": 13,
+          "include_in_csv": true,
+          "purpose": "Cross-dataset join map and analytic purpose"
+        },
+        {
+          "sheet_name": "CSV_Reference",
+          "csv_file": "nordforge_csv_reference.csv",
+          "row_count": 15,
+          "include_in_csv": true,
+          "purpose": "Reference mapping from workbook tabs to CSV files"
+        }
+      ]
+    },
+    {
+      "package_id": "acsa2637_freight_transportation",
+      "artifact_prefix": "ACSA2637",
+      "domain": "freight_transportation",
+      "pipeline_group": "transport_cost_control",
+      "criticality": "essential",
+      "owner_team": "Transportation Finance",
+      "source_system": "TMS / Freight Audit / Carrier Billing",
+      "business_purpose": "Freight cost detail, invoices, rate cards, accessorial review, accruals, and emissions reporting.",
+      "local_export_folder": "acsa2637_freight_transportation",
+      "expected_zip_file": "ACSA2637_nordforge_freight_transportation_csv_exports.zip",
+      "expected_workbook_file": "ACSA2637_nordforge_freight_transportation_erp_environment_adjusted.xlsx",
+      "detail_rows_preserved": 4795,
+      "snapshot_date": "2026-06-23",
+      "primary_key_hint": [
+        "SHIPMENT_ID",
+        "FREIGHT_INVOICE_ID"
+      ],
+      "tables": [
+        {
+          "sheet_name": "Freight_Cost_Detail",
+          "csv_file": "nordforge_freight_cost_detail.csv",
+          "row_count": 4795,
+          "include_in_csv": true,
+          "purpose": "Main freight transportation cost extract; preserves source row count"
+        },
+        {
+          "sheet_name": "Freight_Invoice_Headers",
+          "csv_file": "nordforge_freight_invoice_headers.csv",
+          "row_count": 29,
+          "include_in_csv": true,
+          "purpose": "Freight invoice header totals and audit status"
+        },
+        {
+          "sheet_name": "Shipment_Master",
+          "csv_file": "nordforge_shipment_master.csv",
+          "row_count": 420,
+          "include_in_csv": true,
+          "purpose": "Shipment-level transportation master"
+        },
+        {
+          "sheet_name": "Carrier_Master",
+          "csv_file": "nordforge_carrier_master.csv",
+          "row_count": 10,
+          "include_in_csv": true,
+          "purpose": "Normalized carrier account master"
+        },
+        {
+          "sheet_name": "Carrier_Contacts",
+          "csv_file": "nordforge_carrier_contacts.csv",
+          "row_count": 45,
+          "include_in_csv": true,
+          "purpose": "Source carrier/contact labels mapped to carrier accounts"
+        },
+        {
+          "sheet_name": "Route_Master",
+          "csv_file": "nordforge_route_master.csv",
+          "row_count": 4,
+          "include_in_csv": true,
+          "purpose": "Origin-destination route master"
+        },
+        {
+          "sheet_name": "Transport_Mode_Master",
+          "csv_file": "nordforge_transport_modes.csv",
+          "row_count": 4,
+          "include_in_csv": true,
+          "purpose": "Mode cost and emissions factors"
+        },
+        {
+          "sheet_name": "Incoterms_Master",
+          "csv_file": "nordforge_incoterms.csv",
+          "row_count": 3,
+          "include_in_csv": true,
+          "purpose": "Incoterms cost ownership master"
+        },
+        {
+          "sheet_name": "Freight_Rate_Card",
+          "csv_file": "nordforge_freight_rate_card.csv",
+          "row_count": 15,
+          "include_in_csv": true,
+          "purpose": "Contracted freight rate card by route, mode, and incoterm"
+        },
+        {
+          "sheet_name": "Fuel_Surcharge_Index",
+          "csv_file": "nordforge_fuel_surcharge_index.csv",
+          "row_count": 17,
+          "include_in_csv": true,
+          "purpose": "Monthly fuel surcharge benchmark by mode"
+        },
+        {
+          "sheet_name": "Accessorial_Estimates",
+          "csv_file": "nordforge_accessorial_estimates.csv",
+          "row_count": 3805,
+          "include_in_csv": true,
+          "purpose": "Potential accessorial charge estimates for review rows"
+        },
+        {
+          "sheet_name": "Freight_Audit_Findings",
+          "csv_file": "nordforge_freight_audit_findings.csv",
+          "row_count": 3805,
+          "include_in_csv": true,
+          "purpose": "Freight audit exceptions and owner actions"
+        },
+        {
+          "sheet_name": "Freight_Accruals",
+          "csv_file": "nordforge_freight_accruals.csv",
+          "row_count": 35,
+          "include_in_csv": true,
+          "purpose": "Monthly freight accruals by customer, route, and mode"
+        },
+        {
+          "sheet_name": "Freight_Emissions",
+          "csv_file": "nordforge_freight_emissions.csv",
+          "row_count": 35,
+          "include_in_csv": true,
+          "purpose": "Freight carbon emissions by month, route, and mode"
+        },
+        {
+          "sheet_name": "Route_Cost_Scorecard",
+          "csv_file": "nordforge_route_cost_scorecard.csv",
+          "row_count": 14,
+          "include_in_csv": true,
+          "purpose": "Route and mode freight cost scorecard"
+        },
+        {
+          "sheet_name": "Cross_Dataset_Link_Map",
+          "csv_file": "nordforge_dataset_links.csv",
+          "row_count": 14,
+          "include_in_csv": true,
+          "purpose": "Cross-dataset join map and analytic purpose"
+        },
+        {
+          "sheet_name": "CSV_Reference",
+          "csv_file": "nordforge_csv_reference.csv",
+          "row_count": 16,
+          "include_in_csv": true,
+          "purpose": "Reference mapping from workbook tabs to CSV files"
+        }
+      ]
+    },
+    {
+      "package_id": "acda4413_inventory_movements",
+      "artifact_prefix": "ACDA4413",
+      "domain": "inventory_movements",
+      "pipeline_group": "warehouse_execution",
+      "criticality": "essential",
+      "owner_team": "Industrial Inventory Control",
+      "source_system": "SAP MM / EWM",
+      "business_purpose": "Inventory movement ledger, warehouse/bin/material masters, transfers, production consumption, scrap/loss, and aging risk.",
+      "local_export_folder": "acda4413_inventory_movements",
+      "expected_zip_file": "ACDA4413_nordforge_inventory_movements_csv_exports.zip",
+      "expected_workbook_file": "ACDA4413_nordforge_inventory_movements_erp_environment_adjusted.xlsx",
+      "detail_rows_preserved": 56489,
+      "snapshot_date": "2026-06-23",
+      "primary_key_hint": [
+        "MOVEMENT_ID",
+        "REFERENCE_DOCUMENT_ID"
+      ],
+      "tables": [
+        {
+          "sheet_name": "Inventory_Movement_Ledger",
+          "csv_file": "nordforge_inventory_movement_ledger.csv",
+          "row_count": 56489,
+          "include_in_csv": true,
+          "purpose": "Main industrial inventory movement ledger; preserves source row count"
+        },
+        {
+          "sheet_name": "Warehouse_Master",
+          "csv_file": "nordforge_warehouse_master.csv",
+          "row_count": 3,
+          "include_in_csv": true,
+          "purpose": "Warehouse master and role mapping"
+        },
+        {
+          "sheet_name": "Bin_Master",
+          "csv_file": "nordforge_bin_master.csv",
+          "row_count": 19,
+          "include_in_csv": true,
+          "purpose": "Warehouse bin master and zone mapping"
+        },
+        {
+          "sheet_name": "Material_Master",
+          "csv_file": "nordforge_material_master.csv",
+          "row_count": 4,
+          "include_in_csv": true,
+          "purpose": "Material master with standard cost and lot control"
+        },
+        {
+          "sheet_name": "Batch_Lot_Master",
+          "csv_file": "nordforge_batch_lot_master.csv",
+          "row_count": 56,
+          "include_in_csv": true,
+          "purpose": "Batch and lot lifecycle master"
+        },
+        {
+          "sheet_name": "Movement_Type_Config",
+          "csv_file": "nordforge_movement_type_config.csv",
+          "row_count": 9,
+          "include_in_csv": true,
+          "purpose": "Movement type configuration and SAP movement mapping"
+        },
+        {
+          "sheet_name": "Reference_Documents",
+          "csv_file": "nordforge_reference_documents.csv",
+          "row_count": 210,
+          "include_in_csv": true,
+          "purpose": "Reference document map for inventory postings"
+        },
+        {
+          "sheet_name": "Stock_Balance_Snapshot",
+          "csv_file": "nordforge_stock_balance_snapshot.csv",
+          "row_count": 84,
+          "include_in_csv": true,
+          "purpose": "Estimated on-hand balance by warehouse, SKU, and lot"
+        },
+        {
+          "sheet_name": "Production_Consumption",
+          "csv_file": "nordforge_production_consumption.csv",
+          "row_count": 7532,
+          "include_in_csv": true,
+          "purpose": "Production issue and consumption records"
+        },
+        {
+          "sheet_name": "Interwarehouse_Transfers",
+          "csv_file": "nordforge_interwarehouse_transfers.csv",
+          "row_count": 7532,
+          "include_in_csv": true,
+          "purpose": "Inter-warehouse transfer records"
+        },
+        {
+          "sheet_name": "Cycle_Count_Adjustments",
+          "csv_file": "nordforge_cycle_count_adjustments.csv",
+          "row_count": 7532,
+          "include_in_csv": true,
+          "purpose": "Cycle count loss adjustment records"
+        },
+        {
+          "sheet_name": "Scrap_Loss_Events",
+          "csv_file": "nordforge_scrap_loss_events.csv",
+          "row_count": 15063,
+          "include_in_csv": true,
+          "purpose": "Scrap, return, and loss events"
+        },
+        {
+          "sheet_name": "Aging_Risk_Register",
+          "csv_file": "nordforge_aging_risk_register.csv",
+          "row_count": 56,
+          "include_in_csv": true,
+          "purpose": "Batch-level aging and disposition risk register"
+        },
+        {
+          "sheet_name": "Inventory_KPI_Scorecard",
+          "csv_file": "nordforge_inventory_kpi_scorecard.csv",
+          "row_count": 9,
+          "include_in_csv": true,
+          "purpose": "Monthly inventory movement and loss KPI scorecard"
+        },
+        {
+          "sheet_name": "Data_Quality_Rules",
+          "csv_file": "nordforge_data_quality_rules.csv",
+          "row_count": 8,
+          "include_in_csv": true,
+          "purpose": "Inventory data quality checks"
+        },
+        {
+          "sheet_name": "Cross_Dataset_Link_Map",
+          "csv_file": "nordforge_dataset_links.csv",
+          "row_count": 14,
+          "include_in_csv": true,
+          "purpose": "Cross-dataset join map and analytic purpose"
+        },
+        {
+          "sheet_name": "CSV_Reference",
+          "csv_file": "nordforge_csv_reference.csv",
+          "row_count": 16,
+          "include_in_csv": true,
+          "purpose": "Reference mapping from workbook tabs to CSV files"
+        }
+      ]
+    },
+    {
+      "package_id": "accu1533_customer_availability",
+      "artifact_prefix": "ACCU1533",
+      "domain": "customer_availability_atp",
+      "pipeline_group": "customer_promise",
+      "criticality": "essential",
+      "owner_team": "Customer Availability Desk",
+      "source_system": "SAP ATP / EWM Availability",
+      "business_purpose": "Customer-facing stock availability, ATP constraints, blocked-stock release planning, and promise queue orchestration.",
+      "local_export_folder": "accu1533_customer_availability",
+      "expected_zip_file": "ACCU1533_nordforge_customer_availability_csv_exports.zip",
+      "expected_workbook_file": "ACCU1533_nordforge_customer_availability_erp_environment_adjusted.xlsx",
+      "detail_rows_preserved": 22623,
+      "snapshot_date": "2026-06-29",
+      "primary_key_hint": [
+        "WAREHOUSE_CODE",
+        "SKU",
+        "BATCH_LOT_ID",
+        "ALLOCATION_SEGMENT"
+      ],
+      "tables": [
+        {
+          "sheet_name": "Customer_Availability_Snapshot",
+          "csv_file": "nordforge_customer_availability_snapshot.csv",
+          "row_count": 22623,
+          "include_in_csv": true,
+          "purpose": ""
+        },
+        {
+          "sheet_name": "Warehouse_Master",
+          "csv_file": "nordforge_warehouse_master.csv",
+          "row_count": 3,
+          "include_in_csv": true,
+          "purpose": ""
+        },
+        {
+          "sheet_name": "Material_Service_Catalog",
+          "csv_file": "nordforge_material_service_catalog.csv",
+          "row_count": 9,
+          "include_in_csv": true,
+          "purpose": ""
+        },
+        {
+          "sheet_name": "Batch_Lot_Availability",
+          "csv_file": "nordforge_batch_lot_availability.csv",
+          "row_count": 25,
+          "include_in_csv": true,
+          "purpose": ""
+        },
+        {
+          "sheet_name": "Allocation_Segment_Master",
+          "csv_file": "nordforge_allocation_segment_master.csv",
+          "row_count": 4,
+          "include_in_csv": true,
+          "purpose": ""
+        },
+        {
+          "sheet_name": "Blocked_Stock_Reason_Codes",
+          "csv_file": "nordforge_blocked_stock_reason_codes.csv",
+          "row_count": 13,
+          "include_in_csv": true,
+          "purpose": ""
+        },
+        {
+          "sheet_name": "Daily_Service_ATP_KPI",
+          "csv_file": "nordforge_daily_service_atp_kpi.csv",
+          "row_count": 160,
+          "include_in_csv": true,
+          "purpose": ""
+        },
+        {
+          "sheet_name": "Warehouse_SKU_Availability",
+          "csv_file": "nordforge_warehouse_sku_availability.csv",
+          "row_count": 15,
+          "include_in_csv": true,
+          "purpose": ""
+        },
+        {
+          "sheet_name": "Lot_Release_Worklist",
+          "csv_file": "nordforge_lot_release_worklist.csv",
+          "row_count": 16,
+          "include_in_csv": true,
+          "purpose": ""
+        },
+        {
+          "sheet_name": "Customer_Promise_Queue",
+          "csv_file": "nordforge_customer_promise_queue.csv",
+          "row_count": 117,
+          "include_in_csv": true,
+          "purpose": ""
+        },
+        {
+          "sheet_name": "ATP_Rules_Config",
+          "csv_file": "nordforge_atp_rules_config.csv",
+          "row_count": 5,
+          "include_in_csv": true,
+          "purpose": ""
+        },
+        {
+          "sheet_name": "Data_Quality_Rules",
+          "csv_file": "nordforge_data_quality_rules.csv",
+          "row_count": 8,
+          "include_in_csv": true,
+          "purpose": ""
+        },
+        {
+          "sheet_name": "Dataset_Links",
+          "csv_file": "",
+          "row_count": 7,
+          "include_in_csv": false,
+          "purpose": ""
+        },
+        {
+          "sheet_name": "CSV_Reference",
+          "csv_file": "",
+          "row_count": 14,
+          "include_in_csv": false,
+          "purpose": ""
+        }
+      ]
+    }
+  ],
+  "lineage_edges": [
+    {
+      "from": "accu1533_customer_availability",
+      "to": "accu1932_order_fulfillment",
+      "join_hint": "SKU, WAREHOUSE_CODE, ALLOCATION_SEGMENT",
+      "purpose": "Use ATP constraints before confirming customer order dates."
+    },
+    {
+      "from": "acda4413_inventory_movements",
+      "to": "accu1533_customer_availability",
+      "join_hint": "WAREHOUSE_CODE, SKU, BATCH_LOT_ID",
+      "purpose": "Reconcile stock holds and movement postings with customer availability."
+    },
+    {
+      "from": "accu1932_order_fulfillment",
+      "to": "acda7982_logistics_analytics",
+      "join_hint": "SALES_ORDER_ID, DELIVERY_ID",
+      "purpose": "Connect confirmed orders to delivery OTIF outcomes."
+    },
+    {
+      "from": "acda7982_logistics_analytics",
+      "to": "acsa2637_freight_transportation",
+      "join_hint": "SHIPMENT_ID, CARRIER_ID, ROUTE_ID",
+      "purpose": "Tie delivery performance to freight cost and audit findings."
+    },
+    {
+      "from": "acsa2026_contract_customer",
+      "to": "accu1932_order_fulfillment",
+      "join_hint": "CUSTOMER_ID, MATERIAL_ID, SALES_ORG",
+      "purpose": "Apply contract pricing and discount controls to order fulfillment analysis."
+    },
+    {
+      "from": "accu7392_customer_service",
+      "to": "accu1533_customer_availability",
+      "join_hint": "CUSTOMER_ID, REGION, SERVICE_QUEUE",
+      "purpose": "Route constrained availability to the right account/service team."
+    }
+  ]
+}
