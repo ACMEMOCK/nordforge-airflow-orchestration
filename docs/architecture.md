@@ -53,3 +53,7 @@ The Docker Compose stack uses:
 
 The mounted data path is `data/exports`, surfaced inside the container as `/opt/airflow/data/exports`.
 
+## Future TaskGroup Design
+
+The daily DAG is expected to evolve into domain-level TaskGroups for commercial controls, customer success, warehouse execution, customer promise, order to cash, logistics performance, and transport cost control.
+
