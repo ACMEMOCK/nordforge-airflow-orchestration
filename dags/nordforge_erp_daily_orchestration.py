@@ -10,9 +10,9 @@ from pathlib import Path
 from typing import Any
 
 try:
-    from airflow.sdk import dag, task
+    from airflow.sdk import dag, task, task_group
 except ImportError:  # Airflow 2 compatibility for local parsing tools.
-    from airflow.decorators import dag, task
+    from airflow.decorators import dag, task, task_group
 
 
 CONTRACT_PATH = Path("/opt/airflow/include/contracts/dataset_contracts.json")
@@ -25,6 +25,16 @@ DEFAULT_ARGS = {
     "retries": 2,
     "retry_delay": timedelta(minutes=5),
 }
+
+DOMAIN_STAGE_ORDER = (
+    "commercial_controls",
+    "customer_success",
+    "warehouse_execution",
+    "customer_promise",
+    "order_to_cash",
+    "logistics_performance",
+    "transport_cost_control",
+)
 
 
 def _utc_now_iso() -> str:
@@ -151,37 +161,20 @@ def nordforge_erp_daily_orchestration():
 
     @task
     def build_orchestration_plan(contracts: dict[str, Any], validation: dict[str, Any]) -> dict[str, Any]:
-        stage_order = [
-            "commercial_controls",
-            "customer_success",
-            "warehouse_execution",
-            "customer_promise",
-            "order_to_cash",
-            "logistics_performance",
-            "transport_cost_control",
-        ]
+
         packages_by_group = {
-            group: [p["package_id"] for p in contracts["packages"] if p["pipeline_group"] == group]
-            for group in stage_order
+            group: [
+                package["package_id"]
+                for package in contracts["packages"]
+                if package["pipeline_group"] == group
+            ]
+            for group in DOMAIN_STAGE_ORDER
         }
+
         return {
             "planned_at_utc": _utc_now_iso(),
-            "stage_order": stage_order,
+            "stage_order": list(DOMAIN_STAGE_ORDER),
             "packages_by_group": packages_by_group,
-            "lineage_edges": contracts["lineage_edges"],
-            "validation_statuses": {
-                item["package_id"]: item["status"] for item in validation["package_results"]
-            },
-            "control_steps": [
-                "erp_extract_arrival_check",
-                "csv_contract_validation",
-                "warehouse_and_customer_master_conformance",
-                "inventory_and_atp_snapshot_publish",
-                "order_to_delivery_lineage_refresh",
-                "transport_cost_and_emissions_kpi_refresh",
-                "failed_interface_retry_queue_publish",
-            ],
-        }
 
     @task
     def publish_control_manifest(
@@ -242,14 +235,70 @@ def nordforge_erp_daily_orchestration():
             "rows_by_domain": rows_by_domain,
             "rows_by_pipeline_group": totals_by_group,
         }
+    @task
+    def evaluate_domain_stage(
+        pipeline_group: str,
+        contracts: dict[str, Any],
+        validation: dict[str, Any],
+    ) -> dict[str, Any]:
+        package_ids = [
+            package["package_id"]
+            for package in contracts["packages"]
+            if package["pipeline_group"] == pipeline_group
+        ]
+        validation_by_package = {
+            result["package_id"]: result["status"]
+            for result in validation["package_results"]
+        }
+        package_statuses = {
+            package_id: validation_by_package.get(package_id, "not_reported")
+            for package_id in package_ids
+        }
+        accepted_statuses = {"valid", "not_mounted_demo"}
 
+        return {
+            "pipeline_group": pipeline_group,
+            "package_ids": package_ids,
+            "package_statuses": package_statuses,
+            "ready": bool(package_ids)
+            and all(status in accepted_statuses for status in package_statuses.values()),
+            "evaluated_at_utc": _utc_now_iso(),
+        }
+
+    def build_domain_task_group(
+        group_id: str,
+        contracts: Any,
+        validation: Any,
+    ) -> Any:
+        @task_group(group_id=group_id)
+        def domain_task_group() -> Any:
+            return evaluate_domain_stage.override(
+                task_id="evaluate_readiness"
+            )(
+                pipeline_group=group_id,
+                contracts=contracts,
+                validation=validation,
+            )
+
+        return domain_task_group()
     contracts = load_dataset_contracts()
     validation = validate_export_packages(contracts)
     plan = build_orchestration_plan(contracts, validation)
+
+    domain_stages = [
+        build_domain_task_group(group_id, contracts, validation)
+        for group_id in DOMAIN_STAGE_ORDER
+    ]
+
+    for previous_stage, next_stage in zip(domain_stages, domain_stages[1:]):
+        previous_stage >> next_stage
+
     manifest = publish_control_manifest(contracts, validation, plan)
     retry_queue = publish_retry_queue(validation)
     kpi_manifest = publish_kpi_manifest(contracts, validation)
 
+    plan >> domain_stages[0]
+    domain_stages[-1] >> manifest
     manifest >> retry_queue
     manifest >> kpi_manifest
 
