@@ -175,7 +175,7 @@ def nordforge_erp_daily_orchestration():
             "planned_at_utc": _utc_now_iso(),
             "stage_order": list(DOMAIN_STAGE_ORDER),
             "packages_by_group": packages_by_group,
-
+        }
     @task
     def publish_control_manifest(
         contracts: dict[str, Any],
