@@ -53,3 +53,23 @@ The Docker Compose stack uses:
 
 The mounted data path is `data/exports`, surfaced inside the container as `/opt/airflow/data/exports`.
 
+## Domain TaskGroup Design
+
+The daily DAG groups package-readiness controls according to NordForge's
+industrial operating model:
+
+1. `commercial_controls`
+2. `customer_success`
+3. `warehouse_execution`
+4. `customer_promise`
+5. `order_to_cash`
+6. `logistics_performance`
+7. `transport_cost_control`
+
+Each TaskGroup contains an `evaluate_readiness` task that reports its package
+IDs and validation statuses. The groups run in operating sequence before the
+control manifest, retry queue, and KPI manifest are published.
+
+The original contract-loading, package-validation, planning, manifest, retry,
+and KPI task outputs remain backward compatible.
+
